@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    eventmachine (1.2.5)
+    rx (0.0.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  eventmachine
+  rx
+
+BUNDLED WITH
+   1.16.1
