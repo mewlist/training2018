@@ -20,8 +20,9 @@ class Login < ToServer
 end
 
 class Loggedin < ToClient
-  def initialize(resullt)
+  def initialize(resullt, x, y)
     @result = true
+    @x, @y = x, y
   end
   def to_json
     {func: :loggedin, params: {result: @result}}.to_json
@@ -39,8 +40,8 @@ end
 
 class Move < ToServer
   def initialize(x, y)
-    @x = x
-    @y = y
+    @x = [[x, 0].max, 40].min
+    @y = [[y, 0].max, 40].min
   end
   def to_json
     {func: :move, params: {x: @x, y: @y}}.to_json
@@ -75,5 +76,26 @@ class RaidMoved < ToClient
   end
   def to_json
     {func: :raid_moved, params: {x: @x, y: @y}}.to_json
+  end
+end
+
+class Attack < ToServer
+  def initialize(x, y)
+    @x = x
+    @y = y
+  end
+  def to_json
+    {func: :attack, params: {x: @x, y: @y}}.to_json
+  end
+end
+
+class Attacked < ToClient
+  def initialize(x, y, raid_hp)
+    @x = x
+    @y = y
+    @raid_hp = raid_hp
+  end
+  def to_json
+    {func: :attacked, params: {x: @x, y: @y, raid_hp: @raid_hp}}.to_json
   end
 end

@@ -4,17 +4,41 @@ require 'tty'
 require 'singleton'
 require 'eventmachine'
 require_relative '../rpc/rpc.rb'
+require_relative './view.rb'
+require_relative './fellow.rb'
 require "curses"
 
+class Client
+  def self.set_player_class klass
+    @@player_klass = klass
+  end
 
-class Player
-  include Singleton
+  attr_reader :player
+  attr_reader :fellows
+  attr_reader :raid
+
+  def view
+    View.instance
+  end
 
   def initialize
-    @state = nil
-    @active = false
-    @raid = nil
+    @player = nil
     @fellows = {}
+    @raid = {x: 0, y: 0, hp: 0}
+  end
+
+  def update
+    @player.update
+  end
+
+  def start_gameloop
+    @disposable = Rx::Observable.timer(1, 0.1)
+      .time_interval
+      .pluck('interval')
+      .subscribe(
+        lambda {|x| update },
+        lambda {|err| raise err.to_s },
+        lambda { puts 'Completed' })
   end
 
   def set_session(session)
@@ -29,41 +53,71 @@ class Player
         lambda {|err| puts 'Error: ' + err.to_s },
         lambda { puts 'Completed' })
 
-    @name = TTY::Prompt.new.ask("What's your name?", required: true)
+    @player_id = view.login_prompt
 
-    puts 'Login to server'
-    @bar = TTY::ProgressBar.new("Login [:bar]", total: 100)
-    90.times do
-      sleep 0.01
-      @bar.advance(1)
-    end
-    @session.send_data Login.new(@name).to_json + "\n"
+    view.login
+    send_data Login.new(@player_id)
   end
 
+  def init_input
+    # UI thread
+    Thread.new do
+      while true
+        Thread.pass    # メインスレッドが確実にjoinするように
+        c = Curses.getch
+        x, y = @player.x, @player.y
+        case c
+        when 'a'
+          send_data Move.new(x-1, y)
+        when 'd'
+          send_data Move.new(x+1, y)
+        when 'w'
+          send_data Move.new(x, y-1)
+        when 's'
+          send_data Move.new(x, y+1)
+        when ' '
+          send_data Attack.new(@player.x, @player.y)
+          send_data Attack.new(@raid['x'], @raid['y'])
+        end
+      end
+    end
+  end
+
+  def send_data data
+    @session.send_data data.to_json + "\n"
+  end
+
+  # RPC
+
   def loggedin(params)
-    @bar.advance(10)
-    puts 'Login Succeeded !'
-    sleep 1
-    game
+    @player = @@player_klass.new self, @player_id, params['x'], params['y']
+    view.loggedin self
+    view.init_game
+    start_gameloop
+    init_input
   end
 
   def left(params)
     name = params['name']
     @fellows.delete name
-    update_screen
   end
 
   def moved(params)
     name = params['name']
     x = params['x']
     y = params['y']
-    if name == @name
-      @x = x
-      @y = y
-    end
+
     raise if name.nil?
-    @fellows[name] = {'x' => x, 'y' => y}
-    update_screen
+
+    if name == @player_id
+      @player.setpos x, y
+    end
+
+    unless @fellows.key? name
+      @fellows[name] = Fellow.new name, x, y
+    else
+      @fellows[name].setpos x, y
+    end
   end
 
   def raid_moved(params)
@@ -71,86 +125,19 @@ class Player
     y = params['y']
     @raid['x'] = x
     @raid['y'] = y
-    update_screen
   end
 
   def sync(params)
-    pp params
     users = params['users']
     @raid = params['raid']
     users.each do |user|
       moved(user)
     end
+    start_gameloop
   end
 
-  def game
-    @x = 0
-    @y = 0
-
-    Curses.init_screen
-    begin
-      Curses.crmode
-      Curses.noecho
-      Curses.setpos((Curses.lines - 1) / 2, (Curses.cols - 11) / 2)
-      Curses.addstr("Hit any key")
-      Curses.setpos(5, 1)
-      Curses.addstr("Hit any key")
-      Curses.addstr("Hit any key")
-      Curses.refresh
-    ensure
-    end
-
-    # UI thread
-    Thread.new do
-      while true
-        Thread.pass    # メインスレッドが確実にjoinするように
-        c = Curses.getch
-        case c
-        when 'a'
-          @x -= 1
-        when 'd'
-          @x += 1
-        when 'w'
-          @y -= 1
-        when 's'
-          @y += 1
-        end
-        @x = [[@x, 0].max, 40].min
-        @y = [[@y, 0].max, 40].min
-        update_screen
-        @session.send_data Move.new(@x, @y).to_json + "\n"
-      end
-    end
-#    command = TTY::Prompt.new.select(prompt) do |menu|
-#      menu.choice 'Attack'
-#      menu.choice 'Heal'
-#      menu.choice 'Defence'
-#    end
-  end
-
-  def update_screen
-    Curses.clear
-    @fellows.each do |v|
-      pos = v[1]
-      name = v[0]
-      Curses.setpos(pos['y'], pos['x'])
-      if name != @name
-        Curses.addstr("+")
-      else
-        Curses.addstr("@")
-      end
-    end
-    Curses.setpos(@raid['y'], @raid['x'])
-    Curses.addstr("#")
-    Curses.refresh
-  end
-
-  def prompt
-    "\n" +
-    "========================================\n" +
-    "= HP 100/100\n" +
-    "= \n" +
-    "========================================\n" +
-    "Command?"
+  def attacked(params)
+    view.add_attack_effect(params['x'], params['y'])
+    @raid['hp'] = params['raid_hp']
   end
 end
