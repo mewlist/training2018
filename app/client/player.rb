@@ -23,5 +23,21 @@ class Player
   def update
     # do something
   end
+
+  def move_left
+    @client.send_data Move.new(@x-1, @y)
+  end
+
+  def move_right
+    @client.send_data Move.new(@x+1, @y)
+  end
+
+  def move_up
+    @client.send_data Move.new(@x, @y-1)
+  end
+
+  def move_down
+    @client.send_data Move.new(@x, @y+1)
+  end
 end
 

@@ -72,13 +72,13 @@ class Client
         x, y = @player.x, @player.y
         case c
         when 'a'
-          send_data Move.new(x-1, y)
+          @player.move_left
         when 'd'
-          send_data Move.new(x+1, y)
+          @player.move_right
         when 'w'
-          send_data Move.new(x, y-1)
+          @player.move_up
         when 's'
-          send_data Move.new(x, y+1)
+          @player.move_down
         when ' '
           send_data Attack.new(@player.x, @player.y)
           send_data Attack.new(@raid['x'], @raid['y'])
