@@ -51,7 +51,11 @@ class Client
           self.method(x['func']).call(x['params'])
         },
         lambda {|err| puts 'Error: ' + err.to_s },
-        lambda { puts 'Completed' })
+        lambda {
+          puts ""
+          puts 'Connection closed'
+          exit
+        })
 
     @player_id = view.login_prompt
 

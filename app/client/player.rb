@@ -1,4 +1,3 @@
-
 class Player
   attr_reader :name
   attr_reader :x, :y
@@ -26,8 +25,3 @@ class Player
   end
 end
 
-class Bot < Player
-  def update
-    # ここに Bot AI のコードを書こう
-  end
-end

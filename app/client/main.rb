@@ -1,6 +1,7 @@
 require 'eventmachine'
 require_relative './connection.rb'
 require_relative './player.rb'
+require_relative './bot.rb'
 
 $ip = ARGV[0] || "127.0.0.1"
 
