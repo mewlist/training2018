@@ -80,8 +80,7 @@ class Client
         when 's'
           @player.move_down
         when ' '
-          send_data Attack.new(@player.x, @player.y)
-          send_data Attack.new(@raid['x'], @raid['y'])
+          @player.attack
         end
       end
     end

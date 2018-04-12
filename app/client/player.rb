@@ -39,5 +39,9 @@ class Player
   def move_down
     @client.send_data Move.new(@x, @y+1)
   end
+
+  def attack
+    @client.send_data Attack.new(@x, @y)
+  end
 end
 
