@@ -17,7 +17,6 @@ class RaidBoss
     if Server.instance.can_move? self, x, y
       @x = x
       @y = y
-      p "raid update"
       Server.instance.broadcast RaidMoved.new(@x, @y).to_json + "\n"
     end
   end

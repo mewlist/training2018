@@ -88,7 +88,7 @@ class View
 
     @client.fellows.keys.each_with_index do |k, i|
       Curses.setpos(2 + i, 41)
-      Curses.addstr('@' + k)
+      Curses.addstr('@' + k + " p" + @client.fellows[k].power.to_s)
     end
     Curses.setpos(@client.raid.y, @client.raid.x)
     Curses.addstr("#")

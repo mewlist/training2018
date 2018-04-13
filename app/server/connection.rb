@@ -18,7 +18,7 @@ class Connection < EventMachine::Connection
   end
 
   def receive_data(data)
-    p "received: #{data}"
+    # p "received: #{data}"
     @stream.push data
   end
 

@@ -99,3 +99,22 @@ class Attacked < ToClient
     {func: :attacked, params: {x: @x, y: @y, raid_hp: @raid_hp}}.to_json
   end
 end
+
+class Empower < ToServer
+  def initialize(x, y)
+    @x = x
+    @y = y
+  end
+  def to_json
+    {func: :empower, params: {x: @x, y: @y}}.to_json
+  end
+end
+
+class PowerChanged < ToClient
+  def initialize(name, power)
+    @name, @power = name, power
+  end
+  def to_json
+    {func: :power_changed, params: {name: @name, power: @power}}.to_json
+  end
+end

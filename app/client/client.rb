@@ -82,6 +82,8 @@ class Client
           @player.move_down
         when ' '
           @player.attack
+        when 'z'
+          @player.empower
         end
       end
     end
@@ -143,5 +145,14 @@ class Client
   def attacked(params)
     view.add_attack_effect(params['x'], params['y'])
     @raid.sethp params['raid_hp']
+  end
+
+  def power_changed(params)
+    name = params['name']
+    power = params['power']
+    if name == @player_id
+      @player.setpower power
+    end
+    @fellows[name].setpower power
   end
 end

@@ -1,6 +1,7 @@
 class Player
   attr_reader :name
   attr_reader :x, :y
+  attr_reader :power
 
   def fellows
     @client.fellows
@@ -13,11 +14,16 @@ class Player
   def initialize(client, name, x, y)
     @client = client
     @name = name
+    @power = 1
     @x, @y = x, y
   end
 
   def setpos(x, y)
     @x, @y = x, y
+  end
+
+  def setpower(power)
+    @power = power
   end
 
   def update
@@ -42,6 +48,10 @@ class Player
 
   def attack
     @client.send_data Attack.new(@x, @y)
+  end
+
+  def empower
+    @client.send_data Empower.new(@x, @y)
   end
 end
 

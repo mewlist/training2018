@@ -15,6 +15,10 @@ class Server
   def initialize
     @connections = {}
     @raid = RaidBoss.new
+    start_timer
+  end
+
+  def start_timer
     @disposable = Rx::Observable.timer(3, 1)
       .time_interval
       .pluck('interval')
@@ -46,17 +50,18 @@ class Server
   end
 
   def update
-    @connections.values.each do |player|
+    active_users.each do |player|
       player.update
     end
     @raid.update
+  rescue => e
+    p e
   end
 
   def can_move?(current, x, y)
     pos = active_users.map{|v| [v.x, v.y]}
     pos.push [@raid.x, @raid.y]
     pos.delete_if {|v|
-      p v
       v[0] == current.x && v[1] == current.y
     }
     !pos.any? {|v| v[0] == x && v[1] == y}
