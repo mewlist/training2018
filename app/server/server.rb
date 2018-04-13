@@ -64,7 +64,7 @@ class Server
 
   def self.run
     EventMachine.run {
-      EventMachine.start_server "127.0.0.1", 8081, Connection
+      EventMachine.start_server "0.0.0.0", 8081, Connection
     }
   end
 end
