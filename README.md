@@ -14,6 +14,14 @@ $ cd app/client
 $ ruby main.rb [server IP adedress]
 ```
 
+## Control player manually
+
+* [W] : Move Up
+* [A] : Move Left
+* [S] : Move Right
+* [D] : Move Down
+* [Space] : Attack
+
 ## How to create bot
 
 ### client/bot.rb
