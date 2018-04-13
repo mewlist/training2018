@@ -90,10 +90,10 @@ class View
       Curses.setpos(2 + i, 41)
       Curses.addstr('@' + k)
     end
-    Curses.setpos(@client.raid['y'], @client.raid['x'])
+    Curses.setpos(@client.raid.y, @client.raid.x)
     Curses.addstr("#")
     Curses.setpos(0, 41)
-    Curses.addstr("BOSS HP" + @client.raid['hp'].to_s)
+    Curses.addstr("BOSS HP" + @client.raid.hp.to_s)
     Curses.setpos(42, 0)
     Curses.addstr(@debug_message.to_s)
     Curses.refresh

@@ -13,3 +13,38 @@ $ ruby main.rb
 $ cd app/client
 $ ruby main.rb [server IP adedress]
 ```
+
+## How to create bot
+
+### client/bot.rb
+
+#### move left every frame
+```
+class Bot < Player
+  def update
+    move_left
+  end
+end
+```
+
+#### get raid position and approach
+
+```
+class Bot < Player
+  def update
+    move_right if @x < raid.x
+    move_left if @x > raid.x
+    move_down if @y < raid.y
+    move_up if @y > raid.y
+  end
+end
+```
+
+#### attack
+```
+class Bot < Player
+  def update
+    attack
+  end
+end
+```

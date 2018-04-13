@@ -6,6 +6,7 @@ require 'eventmachine'
 require_relative '../rpc/rpc.rb'
 require_relative './view.rb'
 require_relative './fellow.rb'
+require_relative './raid.rb'
 require "curses"
 
 class Client
@@ -24,7 +25,7 @@ class Client
   def initialize
     @player = nil
     @fellows = {}
-    @raid = {x: 0, y: 0, hp: 0}
+    @raid = Raid.new(0, 0, 0)
   end
 
   def update
@@ -126,13 +127,13 @@ class Client
   def raid_moved(params)
     x = params['x']
     y = params['y']
-    @raid['x'] = x
-    @raid['y'] = y
+    @raid.setpos x, y
   end
 
   def sync(params)
     users = params['users']
-    @raid = params['raid']
+    @raid.setpos params['raid']['x'], params['raid']['y']
+    @raid.sethp params['raid']['hp']
     users.each do |user|
       moved(user)
     end
@@ -141,6 +142,6 @@ class Client
 
   def attacked(params)
     view.add_attack_effect(params['x'], params['y'])
-    @raid['hp'] = params['raid_hp']
+    @raid.sethp params['raid_hp']
   end
 end
