@@ -66,3 +66,17 @@ class Bot < Player
   end
 end
 ```
+
+#### get fellow and approach
+```
+class Bot < Player
+  def update
+    fellow = @fellows.select{|v| v.name != @name}.first
+    move_right if @x < fellow.x
+    move_left if @x > fellow.x
+    move_down if @y < fellow.y
+    move_up if @y > fellow.y
+  end
+end
+```
+
