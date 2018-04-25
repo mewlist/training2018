@@ -20,7 +20,8 @@ $ ruby main.rb [server IP adedress]
 * [A] : Move Left
 * [S] : Move Right
 * [D] : Move Down
-* [Space] : Attack
+* [Space] : Attack (3x3 range)
+* [Z] : Attack Buff (3x3 range)
 
 ## How to create bot
 
@@ -53,6 +54,15 @@ end
 class Bot < Player
   def update
     attack
+  end
+end
+```
+
+#### attack buff
+```
+class Bot < Player
+  def update
+    empower
   end
 end
 ```
